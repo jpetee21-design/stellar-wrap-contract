@@ -30,7 +30,11 @@ fn stake_is_blocked_while_paused() {
     client.pause(&admin);
 
     let result = client.try_stake(&user, &1_000);
-    assert!(result.is_err(), "stake must be blocked while paused");
+    assert_eq!(
+        result,
+        Err(Ok(ContractError::ContractPaused)),
+        "stake must be blocked while paused"
+    );
 }
 
 #[test]
@@ -42,7 +46,11 @@ fn unstake_is_blocked_while_paused() {
     client.pause(&admin);
 
     let result = client.try_unstake(&user, &1_000);
-    assert!(result.is_err(), "unstake must be blocked while paused");
+    assert_eq!(
+        result,
+        Err(Ok(ContractError::ContractPaused)),
+        "unstake must be blocked while paused"
+    );
 }
 
 #[test]

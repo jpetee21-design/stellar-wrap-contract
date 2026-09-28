@@ -9,7 +9,7 @@ use soroban_sdk::contracterror;
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
-pub enum Error {
+pub enum ContractError {
     /// The contract has not been initialized yet.
     NotInitialized = 1,
     /// The contract has already been initialized.
@@ -33,3 +33,9 @@ pub enum Error {
     /// The contract is paused and cannot process this operation.
     ContractPaused = 7,
 }
+
+/// Backwards-compatible alias for the previous error type name.
+///
+/// Existing call sites that reference `Error` continue to compile while the
+/// canonical name is now `ContractError`.
+pub use ContractError as Error;

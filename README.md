@@ -1355,3 +1355,6 @@ Notes for indexers:
 
 <!-- handsoff-issue-859 -->
 - #859: [Security] Verify inbound bridge nonces cannot be replayed across source chains
+
+<!-- handsoff-issue-456 -->
+- #456: [Refactor] Use `env.storage().persistent()` optimally for WrapRecords

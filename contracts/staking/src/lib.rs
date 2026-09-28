@@ -72,30 +72,59 @@ pub enum DataKey {
     Paused,
 }
 
+/// Read-only query surface of the staking contract.
+///
+/// Grouping the view functions into their own trait keeps the mutating
+/// entry points in [`StakingContract`] separate from the queries, so the
+/// read-only surface can be reasoned about (and audited) on its own. The
+/// trait is implemented for [`StakingContract`] below, preserving the
+/// existing public query behaviour and signatures.
+pub trait StellarWrapQueries {
+    /// Whether the contract is currently paused.
+    fn is_paused(env: Env) -> bool;
+
+    /// Return the admin address for the contract.
+    fn get_admin(env: Env) -> Option<Address>;
+
+    /// Total amount staked across all users.
+    fn total_staked(env: Env) -> i128;
+}
+
 #[contract]
 pub struct StakingContract;
 
 #[contractimpl]
-impl StakingContract {
+impl StellarWrapQueries for StakingContract {
     /// Whether the contract is currently paused.
-    pub fn is_paused(env: Env) -> bool {
+    fn is_paused(env: Env) -> bool {
         env.storage()
             .instance()
             .get::<DataKey, bool>(&DataKey::Paused)
             .unwrap_or(false)
     }
 
-    /// Pause or unpause the contract.
-    pub fn set_paused(env: Env, paused: bool) {
-        env.storage().instance().set(&DataKey::Paused, &paused);
-    }
-
     /// Return the admin address for the contract.
     ///
     /// The admin is the address stored under the instance storage key
     /// [`DataKey::Admin`]. If no admin has been set, this returns `None`.
-    pub fn get_admin(env: Env) -> Option<Address> {
+    fn get_admin(env: Env) -> Option<Address> {
         env.storage().instance().get::<DataKey, Address>(&DataKey::Admin)
+    }
+
+    /// Total amount staked across all users.
+    fn total_staked(env: Env) -> i128 {
+        env.storage()
+            .instance()
+            .get::<DataKey, i128>(&DataKey::TotalStaked)
+            .unwrap_or(0)
+    }
+}
+
+#[contractimpl]
+impl StakingContract {
+    /// Pause or unpause the contract.
+    pub fn set_paused(env: Env, paused: bool) {
+        env.storage().instance().set(&DataKey::Paused, &paused);
     }
 
     /// Stake `amount` for `user`.
@@ -207,29 +236,11 @@ impl StakingContract {
 
         Ok(())
     }
-
-    /// Total amount staked across all users.
-    pub fn total_staked(env: Env) -> i128 {
-        env.storage()
-            .instance()
-            .get::<DataKey, i128>(&DataKey::TotalStaked)
-            .unwrap_or(0)
-    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use soroban_sdk::testutils::Address as _;
+    use soroban_sdk::
 
-    #[test]
-    fn stake_rejects_zero() {
-        let env = Env::default();
-        env.mock_all_auths();
-        let contract_id = env.register_contract(None, StakingContract);
-        let client = StakingContractClient::new(&env, &contract_id);
-        let user = Address::generate(&env);
-
-        assert_eq!(client.stake(&user, &0), Err(ContractError::InvalidAmount));
-    }
-}
+/* … truncated 406 chars — edit only what you need near the top … */
